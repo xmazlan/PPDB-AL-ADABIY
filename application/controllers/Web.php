@@ -37,21 +37,58 @@ class Web extends CI_Controller
 		if (isset($_POST['btndaftar'])) {
 			// var_dump($this->input->post()); exit();
 
-			// $config['upload_path']          = './uploads/';
-			// $config['allowed_types']        = 'gif|jpg|jpeg|png';
-			// $config['max_size']             = 2048; // 2MB
+			// add by myself
+			$this->load->library('upload');
+			$dataInfo = array();
+			$files = $_FILES;
+			$cpt = count($_FILES['userfile']['name']);
+			for ($i = 0; $i < $cpt; $i++) {
+				$_FILES['userfile']['name']     = $files['userfile']['name'][$i];
+				$_FILES['userfile']['type']     = $files['userfile']['type'][$i];
+				$_FILES['userfile']['tmp_name'] = $files['userfile']['tmp_name'][$i];
+				$_FILES['userfile']['error']    = $files['userfile']['error'][$i];
+				$_FILES['userfile']['size']     = $files['userfile']['size'][$i];
 
-			// $this->load->library('upload', $config);
-			// $data = [
-			// 	'path' => $this->upload->file_name
-			// ];
+				$this->upload->initialize($this->set_upload_options());
+				// $this->upload->do_upload();
 
-			$acts = $this->web->pendaftaran('daftar', $this->input);
+				if (!$this->upload->do_upload('userfile')) {
+					$this->session->set_flashdata('message', $this->upload->display_errors());
+				} else {
+					// $this->upload->do_upload();
+					$dataInfo[] = $this->upload->data();
+				}
+			}
+
+			$file_kk_dan_ktp = array(
+				'kk'  => $dataInfo[0]['file_name'],
+				'ktp' => $dataInfo[1]['file_name'],
+			);
+
+			$acts = $this->web->pendaftaran('daftar', $this->input, $file_kk_dan_ktp);
 			// 
 
 			$this->session->set_userdata('no_pendaftaran', $this->input->post('nis'));
 			redirect('panel_siswa');
 		}
+	}
+
+	private function set_upload_options()
+	{
+		//upload an image options
+		$config = array();
+		$config['image_library']  = 'gd2';
+		$config['create_thumb']   = TRUE;
+		$config['maintain_ratio'] = TRUE;
+		$config['upload_path']    = './uploads';
+		$config['allowed_types']  = 'gif|jpg|png|jpeg';
+		$config['max_size']       = '0';
+		$config['overwrite']      = FALSE;
+
+		$this->load->library('image_lib', $config);
+		$this->image_lib->resize();
+
+		return $config;
 	}
 
 	public function logcs()

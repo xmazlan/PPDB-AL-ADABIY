@@ -12,10 +12,11 @@ class Model_web extends CI_Model
 		return $this->db->get_where('tbl_web', "id_web='1'")->row();
 	}
 
-	function pendaftaran($menu = '', $data = '')
+	function pendaftaran($menu = '', $data = '', $file_kk_dan_ktp = '')
 	{
 		switch ($menu) {
 			case 'daftar':
+				// $file_kk_dan_ktp = (object) $file_kk_dan_ktp;
 				$data = (object) $data;
 				$data = array(
 					'no_pendaftaran'	=> $data->post('nis'),
@@ -23,6 +24,8 @@ class Model_web extends CI_Model
 					'nis'				=> '',
 					'nisn'				=> $data->post('nisn'),
 					'nik'				=> $data->post('nik'),
+					'kk'				=> $file_kk_dan_ktp['kk'],
+					'ktp'				=> $file_kk_dan_ktp['ktp'],
 					'nama_lengkap'		=> $data->post('nama_lengkap'),
 					'jk'				=> $data->post('jk'),
 					'tempat_lahir'		=> $data->post('tempat_lahir'),
